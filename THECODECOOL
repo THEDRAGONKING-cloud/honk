@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>The Black Den</title>
+    <style>
+        body {
+            background-color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Login screen styling */
+        #login-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: black;
+            color: white;
+        }
+
+        #login-container input {
+            padding: 10px;
+            margin: 10px;
+            font-size: 16px;
+        }
+
+        #login-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: darkred;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        #login-message {
+            color: red;
+            margin-top: 10px;
+        }
+
+        /* Main content hidden by default */
+        #main-content {
+            display: none;
+        }
+
+        h1.header {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 48px;
+            background-color: black;
+            font-family: "Vladimir Script", cursive;
+            color: white;
+            padding: 20px;
+        }
+
+        .tab1 {
+            display: inline-block;
+            width: 140px;
+            height: 60px;
+            background-color: darkred;
+            border: 2px solid black;
+            padding: 10px;
+            margin: 20px;
+            font-family: "Vladimir Script", cursive;
+            color: white;
+            font-size: 40px;
+            text-align: center;
+            line-height: 60px;
+            cursor: pointer;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 🔐 Login Screen -->
+<div id="login-container">
+    <h2>Login to The Black Den</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="checkLogin()">Login</button>
+    <p id="login-message"></p>
+</div>
+
+<!-- 🌐 Main Website Content -->
+<div id="main-content">
+    <h1 class="header">The Black Den</h1>
+    <div class="tab1" onclick="openCustomTab('Action')">Action</div>
+    <div class="tab1" onclick="openCustomTab('Skill')">Skill</div>
+    <div class="tab1" onclick="openCustomTab('Logic')">Logic</div>
+</div>
+
+<script>
+    // ✅ Valid users
+    const users = [
+        { username: "user123", password: "lemonade" },
+        { username: "THEAdmin", password: "pass" },
+        { username: "player1", password: "gamer123" }
+    ];
+
+    // ✅ Login check
+    function checkLogin() {
+        const userInput = document.getElementById("username").value.trim();
+        const passInput = document.getElementById("password").value.trim();
+        const message = document.getElementById("login-message");
+
+        const validUser = users.find(u => u.username === userInput && u.password === passInput);
+
+        if (validUser) {
+            // Success
+            document.getElementById("login-container").style.display = "none";
+            document.getElementById("main-content").style.display = "block";
+        } else {
+            // Error
+            message.textContent = "Incorrect username or password.";
+        }
+    }
+
+    // ✅ Open a custom new tab page
+    function openCustomTab(tabName) {
+        let newTab = window.open('', '_blank');
+
+        newTab.document.write(`
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <title>${tabName} Page</title>
+                <style>
+                    body {
+                        background-color: black;
+                        color: white;
+                        font-family: Arial, sans-serif;
+                        text-align: center;
+                        padding-top: 50px;
+                        margin: 0;
+                    }
+                    h1 {
+                        font-size: 48px;
+                    }
+                    p {
+                        font-size: 24px;
+                        margin-top: 20px;
+                    }
+                </style>
+            </head>
+            <body>
+                <h1>${tabName} Page</h1>
+                <p>This is a custom page opened from the "${tabName}" tab.</p>
+            </body>
+            </html>
+        `);
+
+        newTab.document.close();
+    }
+</script>
+
+</body>
+</html>
