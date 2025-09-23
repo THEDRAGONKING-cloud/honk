@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>The Black Den</title>
+    <style>
+        body {
+            background-color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Login screen styling */
+        #login-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: black;
+            color: white;
+        }
+
+        #login-container input {
+            padding: 10px;
+            margin: 10px;
+            font-size: 16px;
+        }
+
+        #login-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: darkred;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        #login-message {
+            color: red;
+            margin-top: 10px;
+        }
+
+        /* Main content hidden by default */
+        #main-content {
+            display: none;
+        }
+
+        h1.header {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 48px;
+            background-color: black;
+            font-family: "Vladimir Script", cursive;
+            color: white;
+            padding: 20px;
+        }
+
+        .tab1 {
+            display: inline-block;
+            width: 140px;
+            height: 60px;
+            background-color: darkred;
+            border: 2px solid black;
+            padding: 10px;
+            margin: 20px;
+            font-family: "Vladimir Script", cursive;
+            color: white;
+            font-size: 40px;
+            text-align: center;
+            line-height: 60px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* Admin tab and panel styling */
+        .admin-tab {
+            background-color: aqua;
+            color: black;
+            display: inline-block;
+        }
+
+        /* Logout button styling */
+        #logout-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: darkred;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Admin Panel styles */
+        #admin-panel {
+            display: none;
+            background-color: black;
+            padding: 20px;
+            color: white;
+            min-height: 100vh;
+        }
+        .user-list {
+            list-style: none;
+            padding: 0;
+        }
+        .user-item {
+            background-color: #333;
+            margin: 10px;
+            padding: 15px;
+            border-radius: 5px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .user-item input {
+            background-color: #555;
+            color: white;
+            border: 1px solid #777;
+            padding: 8px;
+            margin: 5px;
+            border-radius: 3px;
+        }
+        .user-item .account-info {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        .user-item .account-controls {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .user-item button {
+            margin-left: 10px;
+            background-color: darkred;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 8px 12px;
+        }
+        .user-item button.update {
+            background-color: #4CAF50; /* Green color for update */
+        }
+        .user-item button.delete {
+            background-color: #f44336; /* Red color for delete */
+        }
+    </style>
+</head>
+<body>
+
+<!-- 🔐 Login Screen -->
+<div id="login-container">
+    <h2>Login to The Black Den</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="checkLogin()">Login</button>
+    <p id="login-message"></p>
+</div>
+
+<!-- 🌐 Main Website Content -->
+<div id="main-content">
+    <h1 class="header">The Black Den</h1>
+    <div class="tab1" onclick="openCustomTab('Action')">Action</div>
+    <div class="tab1" onclick="openCustomTab('Skill')">Skill</div>
+    <div class="tab1" onclick="openCustomTab('Logic')">Logic</div>
+    <div class="tab1 admin-tab" id="admin-tab" onclick="openAdminPanel()" style="display:none;">Admin Panel</div>
+    <button id="logout-button" onclick="logout()" style="display:none;">Logout</button>
+</div>
+
+<!-- ⚙️ Admin Panel Content -->
+<div id="admin-panel">
+    <h2 style="color:white;">Admin Panel</h2>
+
+    <!-- Add Account Form -->
+    <div style="margin-bottom: 20px; padding: 15px; background-color: #222; border-radius: 5px;">
+        <h3 style="margin-top: 0;">Add New Account</h3>
+        <input type="text" id="new-username" placeholder="New Username" style="margin-right: 10px;">
+        <input type="text" id="new-password" placeholder="New Password" style="margin-right: 10px;">
+        <button onclick="addAccount()">Add Account</button>
+    </div>
+    
+    <div id="admin-management-section">
+        <h3 style="color: white;">Admin Management</h3>
+        <div style="margin-bottom: 20px; padding: 15px; background-color: #222; border-radius: 5px;">
+            <h4 style="margin-top: 0;">Add/Edit Admin Account</h4>
+            <input type="text" id="admin-username-input" placeholder="Username" style="margin-right: 10px;">
+            <input type="text" id="admin-password-input" placeholder="Password (leave blank to not change)" style="margin-right: 10px;">
+            <button onclick="addOrUpdateAdmin()">Save Admin</button>
+        </div>
+        <ul id="admin-list" class="user-list">
+            <!-- Admin items will be generated here by JavaScript -->
+        </ul>
+    </div>
+
+    <h3 style="color: white;">User Management</h3>
+    <ul id="user-management-list" class="user-list">
+        <!-- User items will be generated here by JavaScript -->
+    </ul>
+    <button onclick="closeAdminPanel()">Close Admin Panel</button>
+</div>
+
+<script>
+    // --- Data Management Functions ---
+    const STORAGE_KEY = 'appUsers';
+
+    const defaultUsers = [
+        { username: "user123", password: "lemonade", isSuspended: false, deviceId: null, isAdmin: false },
+        { username: "THEAdmin", password: "pass", isSuspended: false, deviceId: null, isAdmin: true },
+        { username: "player1", password: "gamer123", isSuspended: false, deviceId: null, isAdmin: false }
+    ];
+
+    let users = loadUsersFromLocalStorage();
+    let currentUser = null;
+
+    function loadUsersFromLocalStorage() {
+        const storedUsers = localStorage.getItem(STORAGE_KEY);
+        let currentUsers = storedUsers ? JSON.parse(storedUsers) : defaultUsers;
+        
+        // Ensure primary admin account exists
+        const adminAccountExists = currentUsers.some(user => user.username === "THEAdmin" && user.isAdmin);
+        if (!adminAccountExists) {
+            const primaryAdmin = defaultUsers.find(user => user.username === "THEAdmin");
+            if (primaryAdmin) {
+                currentUsers.push(primaryAdmin);
+            }
+        }
+        return currentUsers;
+    }
+
+    function saveUsersToLocalStorage() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+    }
+
+    function generateDeviceId() {
+        return 'device-' + Math.random().toString(36).substr(2, 9);
+    }
+
+    // --- UI State Management Functions ---
+    function showLoginScreen() {
+        document.getElementById('login-container').style.display = 'flex';
+        document.getElementById('main-content').style.display = 'none';
+        document.getElementById('logout-button').style.display = 'none';
+        document.getElementById('admin-panel').style.display = 'none';
+        document.getElementById('admin-tab').style.display = 'none';
+    }
+
+    function showMainContent() {
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        document.getElementById('logout-button').style.display = 'block';
+        if (currentUser && currentUser.isAdmin) {
+            document.getElementById('admin-tab').style.display = 'inline-block';
+        }
+    }
+
+    function openAdminPanel() {
+        if (currentUser && currentUser.isAdmin) {
+            document.getElementById('main-content').style.display = 'none';
+            document.getElementById('admin-panel').style.display = 'block';
+            renderManagementLists();
+        }
+    }
+
+    function closeAdminPanel() {
+        document.getElementById('admin-panel').style.display = 'none';
+        showMainContent();
+    }
+
+    function logout() {
+        currentUser = null;
+        localStorage.removeItem('loggedInUser'); // Optional: Clear session info
+        showLoginScreen();
+        document.getElementById('login-message').innerText = "";
+        document.getElementById('username').value = "";
+        document.getElementById('password').value = "";
+    }
+
+    function openCustomTab(tabName) {
+        alert("Navigating to " + tabName + " content.");
+    }
+
+    // --- Core Logic Functions ---
+    function checkLogin() {
+        const usernameInput = document.getElementById('username').value;
+        const passwordInput = document.getElementById('password').value;
+        const loginMessage = document.getElementById('login-message');
+
+        const user = users.find(u => u.username === usernameInput);
+
+        if (user && user.password === passwordInput) {
+            if (user.isSuspended) {
+                loginMessage.innerText = "Account is suspended.";
+                return;
+            }
+
+            // Get or generate a unique device ID from localStorage
+            let currentDeviceId = localStorage.getItem('deviceId');
+            if (!currentDeviceId) {
+                currentDeviceId = generateDeviceId();
+                localStorage.setItem('deviceId', currentDeviceId);
+            }
+
+            // Check if user is already registered to a device
+            if (user.deviceId) {
+                // Enforce device ID match for all users
+                if (user.deviceId !== currentDeviceId) {
+                    loginMessage.innerText = "This account can only be used on its registered device.";
+                    return;
+                }
+            } else {
+                // If no device ID is registered, set the current device as the official device
+                user.deviceId = currentDeviceId;
+                saveUsersToLocalStorage();
+                console.log(`Device registered for user: ${user.username}. Device ID: ${user.deviceId}`);
+            }
+
+            currentUser = user;
+            showMainContent();
+            loginMessage.innerText = "";
+            console.log(currentUser.username + " logged in successfully.");
+        } else {
+            loginMessage.innerText = "Invalid username or password.";
+        }
+    }
+
+    // --- Admin Management Functions ---
+    function addAccount() {
+        const newUsername = document.getElementById('new-username').value;
+        const newPassword = document.getElementById('new-password').value;
+        if (newUsername && newPassword) {
+            if (users.some(u => u.username === newUsername)) {
+                alert("Username already exists.");
+                return;
+            }
+            users.push({ username: newUsername, password: newPassword, isSuspended: false, deviceId: null, isAdmin: false });
+            saveUsersToLocalStorage();
+            renderManagementLists();
+            document.getElementById('new-username').value = '';
+            document.getElementById('new-password').value = '';
+        } else {
+            alert("Please enter both username and password.");
+        }
+    }
+
+    function addOrUpdateAdmin() {
+        const adminUsername = document.getElementById('admin-username-input').value;
+        const adminPassword = document.getElementById('admin-password-input').value;
+        if (adminUsername) {
+            const adminUserIndex = users.findIndex(u => u.username === adminUsername);
+            if (adminUserIndex > -1) {
+                if (adminPassword) {
+                    users[adminUserIndex].password = adminPassword;
+                }
+                users[adminUserIndex].isAdmin = true;
+            } else {
+                users.push({ username: adminUsername, password: adminPassword, isSuspended: false, deviceId: null, isAdmin: true });
+            }
+            saveUsersToLocalStorage();
+            renderManagementLists();
+            document.getElementById('admin-username-input').value = '';
+            document.getElementById('admin-password-input').value = '';
+        }
+    }
+
+    function updateAccount(username, password, isSuspended, isAdmin) {
+        const userIndex = users.findIndex(u => u.username === username);
+        if (userIndex > -1) {
+            users[userIndex].password = password;
+            users[userIndex].isSuspended = isSuspended;
+            users[userIndex].isAdmin = isAdmin;
+            saveUsersToLocalStorage();
+            renderManagementLists();
+        }
+    }
+
+    function deleteAccount(username) {
+        if (confirm(`Are you sure you want to delete ${username}?`)) {
+            users = users.filter(u => u.username !== username);
+            saveUsersToLocalStorage();
+            renderManagementLists();
+        }
+    }
+
+    function renderManagementLists() {
+        const userList = document.getElementById('user-management-list');
+        const adminList = document.getElementById('admin-list');
+        userList.innerHTML = '';
+        adminList.innerHTML = '';
+
+        users.forEach(user => {
+            const li = document.createElement('li');
+            li.className = 'user-item';
+            
+            const accountInfoDiv = document.createElement('div');
+            accountInfoDiv.className = 'account-info';
+            accountInfoDiv.innerHTML = `
+                <span>Username: ${user.username}</span>
+                <span>isAdmin: ${user.isAdmin}</span>
+                <span>isSuspended: ${user.isSuspended}</span>
+                <span>deviceId: ${user.deviceId || 'N/A'}</span>
+            `;
+
+            const accountControlsDiv = document.createElement('div');
+            accountControlsDiv.className = 'account-controls';
+            
+            const passwordInput = document.createElement('input');
+            passwordInput.type = 'text';
+            passwordInput.value = user.password;
+
+            const updateButton = document.createElement('button');
+            updateButton.className = 'update';
+            updateButton.innerText = 'Update';
+            updateButton.onclick = () => {
+                const newPassword = passwordInput.value;
+                const newIsAdmin = li.querySelector('.isAdmin-toggle').checked;
+                const newIsSuspended = li.querySelector('.isSuspended-toggle').checked;
+                updateAccount(user.username, newPassword, newIsSuspended, newIsAdmin);
+            };
+
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'delete';
+            deleteButton.innerText = 'Delete';
+            deleteButton.onclick = () => deleteAccount(user.username);
+            
+            accountControlsDiv.appendChild(passwordInput);
+
+            const isAdminLabel = document.createElement('label');
+            isAdminLabel.innerHTML = `<input type="checkbox" class="isAdmin-toggle" ${user.isAdmin ? 'checked' : ''}> Admin`;
+            accountControlsDiv.appendChild(isAdminLabel);
+
+            const isSuspendedLabel = document.createElement('label');
+            isSuspendedLabel.innerHTML = `<input type="checkbox" class="isSuspended-toggle" ${user.isSuspended ? 'checked' : ''}> Suspended`;
+            accountControlsDiv.appendChild(isSuspendedLabel);
+            
+            accountControlsDiv.appendChild(updateButton);
+            accountControlsDiv.appendChild(deleteButton);
+            
+            li.appendChild(accountInfoDiv);
+            li.appendChild(accountControlsDiv);
+
+            if (user.isAdmin) {
+                adminList.appendChild(li);
+            } else {
+                userList.appendChild(li);
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
