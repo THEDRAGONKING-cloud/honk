@@ -325,11 +325,14 @@
 
         document.getElementById("admin-panel").style.display = "block";
         document.getElementById("main-content").style.display = "none";
-        if (currentUser.username !== "THEAdmin") {
-            document.getElementById("admin-management-section").style.display = "none";
-        } else {
+        
+        // This is the corrected logic.
+        // It now shows the admin management section only if the current user is 'THEAdmin'.
+        if (currentUser.username === "THEAdmin") {
             document.getElementById("admin-management-section").style.display = "block";
             renderAdmins();
+        } else {
+            document.getElementById("admin-management-section").style.display = "none";
         }
         renderUsers();
     }
@@ -509,3 +512,4 @@
 </script>
 </body>
 </html>
+
